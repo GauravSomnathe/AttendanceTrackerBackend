@@ -1,34 +1,33 @@
 require("dotenv").config();
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
+const connectDB = require("./config/db");
 
 const app = express();
+
+// ✅ Connect to MongoDB
+connectDB();
 
 // ✅ CORS setup for frontend
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, // http://localhost:5173
+    origin: process.env.FRONTEND_URL, // http://localhost:5173 or your deployed frontend
     credentials: true, // allow cookies/tokens if needed
   })
 );
 
 app.use(express.json());
 
-// ✅ MongoDB connection
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
-
 // ✅ Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/attendance", require("./routes/attendance"));
 app.use("/api/leave", require("./routes/leave"));
 app.use("/api/employees", require("./routes/employee"));
+
+// ✅ Health check route
+app.get("/", (req, res) => {
+  res.send("🚀 Attendance Management API is running...");
+});
 
 // ✅ Start server
 const PORT = process.env.PORT || 5000;
